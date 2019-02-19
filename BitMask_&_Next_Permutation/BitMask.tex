@@ -1,0 +1,459 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-sloppy]{babel}
+\author{HeNeos}
+\title{Bits Mask \& Next permutation}
+\usepackage{verbments}
+\definecolor{fondo1}{rgb}{0.9764, 0.9764, 0.9762}
+\definecolor{fondo2}{rgb}{0.1647, 0.4980, 0.7}
+\begin{document}
+%bgcolor=fondo del codigo
+%captionbgcolor=fondo del nombre del codigo
+%numbersep= separacion de los numeros al codigo
+%texcl= activa los comentarios
+%styles, introducir el codigo en la terminal: pygmentize -L styles
+\fvset{frame=bottomline, framerule=0.02cm,numbers=left, numbersep=8pt}
+\plset{language=c++,texcl=true, listingnamefont=\sffamily\bfseries\color{white},captionbgcolor=fondo2, bgcolor=fondo1,listingname=\textbf{Programa}, captionfont=\sffamily\color{white}}
+\maketitle
+\section{PC-UNI}
+\subsection*{Objetivos}
+\begin{itemize}
+\item Analizar problemas que requieran computar todas las permutaciones de un arreglo
+\item Analizar problemas que requieran computar todos los subconjuntos de un arreglo
+\item Mostrar como hacer sobrecarga de operadores
+\end{itemize}
+\subsection*{Problema motivacinal 1}
+Dado un entero $n$. Imprimir todas las permutaciones de \{1,2,3,$\ldots${,}$n$\}. Límites: 0 $\leq n \leq$ 9.\\[20pt]
+Una solución a este problema es simplemente usar la STL. Pues, hay funciones que nos pueden ayudar a hacer esta tarea:
+\begin{itemize}
+\item \texttt{next\_permutation}
+\item \texttt{iota}
+\end{itemize}
+Obteniendo una solución $O(n\cdot n!)$
+\begin{pyglist}[language=c++,caption={Problema motivacional 1},style=manni]
+#include <bits/stdc++.h>
+
+#define all(X) begin(X), end(X)
+
+using namespace std;
+
+int main () {
+  int n;
+  cin >> n;
+  vector <int> p(n);
+  iota(all(p), 1);
+  do {
+    for (int p_i: p) cout << p_i << ' ';
+    cout << endl;
+  } while(next_permutation(all(p)));
+  return (0);
+}
+//Codigo hecho con style=manni
+\end{pyglist}
+\subsection*{Problema motivacional 2}
+Dado un entero $n$ seguido de $n$ enteros: $a_{1}, a_{2}, a_{3}, \ldots, a_{n}$.$\!$ Imprimir la suma de elementos de cada subconjunto de los $n$ dados. Límites: 1 $\leq n \leq$ 20.\\[20pt]
+Una solución a este problema es usando máscara de bits. Para entender ello, primero veamos algunos datos útiles:
+\begin{itemize}
+\item Un \texttt{int} usa 32-bit
+\item Un \texttt{long long} usa 64-bit
+\item Un entero que usa $k$ bits puede almacenar números en $[-2^{k-1},2^{k-1})$
+\item Un entero sin singo (\texttt{unsigned}) que usa $k$ bits puede almacenar números en $[0,2^{k})$
+\end{itemize}
+En \texttt{C++} podemos comprobar lo anterior con el siguiente código:
+\begin{pyglist}[language=c++,caption={Comprobación},listingname={\textbf{Ejemplo}},style=igor]
+cout << INT_MIN << ' ' << INT_MAX << endl;
+cout << UINT_MAX << endl;
+cout << LLONG_MIN << ' ' << LLONG_MAX << endl;
+cout << ULLONG_MAX << endl;
+//Codigo hecho con style=igor
+\end{pyglist}
+Los enteros se guardan en su representación binaria usando $k$ bits (completando con 0's si es necesario).\\
+Por ejemplo, para un entero de 8 bits, los siguientes números se guardarían así:
+\begin{itemize}
+\item 5=00000101
+\item 7=00000111
+\item 8=00001000
+\item 12=00001100
+\item 19=00010011
+\end{itemize}
+En \texttt{C++} podemos comprobar lo anterior con el siguiente código:
+\begin{pyglist}[language=c++,caption={Comprobación},listingname={\textbf{Ejemplo}},style=lovelace]
+for (int num: {5, 7, 8, 12, 19}) {
+    cout << setw(2) << num << ' ' << bitset <8>(num) << endl;
+  }
+//Codigo hecho con style=lovelace
+\end{pyglist}
+En \texttt{C++} podemos trabajar con los números a nivel de bits usando estas operaciones:
+\begin{itemize}
+\item $\&$
+\item $\vert$
+\item $\wedge$
+\item $\sim$
+\end{itemize}
+Además en \texttt{C++} podemos mover todos los bits de un número hacia la izquierda o la derecha con los operadores \texttt{<<} y \texttt{>>} respectivamente.\\
+Con esto, podemos:
+\begin{description}
+\item[Obtener $2^{k}$:] \texttt{1 << k}
+\item[Alternar el $k$-esimo bit:] \texttt{x $\wedge$ (1 << k)}
+\item[Apagar el $k$-esimo bit:] \texttt{x \& ($\sim$(1 << k))}
+\item[Prender el $k$-esimo bit:] \texttt{x $\vert$ (1 << k)}
+\item[Obtener el $k$-esimo bit:] \texttt{(x >> k) \& 1}
+\end{description}
+Así, podemos resolver nuestro problema motivacional en $O(n\cdot 2^{n})$ con el siguiente código:
+\begin{pyglist}[language=c++,caption={Problema motivacional 2},style=xcode]
+int n;
+  cin >> n;
+  vector <int> arr(n);
+  for (int i = 0; i < n; i++) cin >> arr[i];
+  for (int mask = 0; mask < (1 << n); mask++) {
+    int sum = 0;
+    for (int bit = 0; bit < n; bit++) {
+      if ((mask >> bit) & 1) sum += arr[bit];
+    }
+    cout << bitset <20> (mask) << " suma = " << sum << endl;
+  }
+//Codigo hecho con style=xcode
+\end{pyglist}
+Lo anterior también te permitiría resolver (con un poco de ingenio) algunas problemas que requieran manipular bits.\\
+También te podría interesar:
+\begin{itemize}
+\item \texttt{\_builtin\_popcount}
+\item \texttt{\_builtin\_clz}
+\item \texttt{\_builtin\_ctz}
+\item ¿Cómo se guardan los números negativos?
+\item La clase de manejo de bits del año pasado
+\end{itemize}
+\newpage
+\subsection*{Problema motivacional 3}
+Dado un entero $n$ seguido de $n$ pares de elementos $a_{i}, b_{i}$ (que representan a la fracción $a_{i}/b_{i}$). Imprimir las $n$ fracciones en forma creciente. Límites: $1 \leq n \leq 10^{5}$.\\[20pt]
+Iremos explicando en clase como llegar a codear esto:
+\begin{pyglist}[language=c++,caption={Prueba},style=vs]
+/**
+ * Ejemplo de como crear un 'struct' y como usarlo
+ * Problema
+ * - Queremos tener un tipo de dato de represente una fraccion
+ * - Queremos poder ordenar fracciones siguiendo esta relacion de orden
+ *      a1   a2
+ *      -- < --      <->     a1 * b2 < a2 * b1
+ *      b1   b2
+ * - Queremos poder usar la operacion '+' y '*' entre fracciones
+ * Recibire un numero 'n' seguido de 'n' fracciones
+ * Debo imprimir
+ * Las fracciones ordenadas
+ * La suma de las fracciones
+ * El producto de las fracciones
+ **/
+// Para simplificar la solucion
+// aceptare que las fracciones no tienen 0 en el denominador
+#include <bits/stdc++.h>
+using namespace std;
+struct Fraccion {
+    int num, den;
+    // Los constructores tienen el mismo nombre que mi estructura
+    // Puedo tener mas de un constructor
+    // Estos se diferenciaran por los parametros que reciban
+    Fraccion() {}
+    Fraccion(int x, int y) {
+        num = x;
+        den = y;
+    }
+    // Puedo sobreescribir el operador '<' para poder usar la funcion 'sort'
+    // - (Fraccion\& otra)
+    //   Indica que esta funcion recibira una referencia de la variable que invoque
+    //   este metodo. Asi, no se creara una copia de esa variable para esta funcion
+    //   Lo que se haga con esta variable dentro de la funcion se vera reflejado en
+    //   la variable que la invoco
+    // - (const Fraccion otra)
+    //   Indica que el valor de la variable 'otra' sera constante en ese metodo
+    // - () const \{
+    //   Indica que este metodo no cambiara el estado de ningun atributo de
+    //   la instancia de esta 'struct' que invoque el metodo
+    bool operator < (const Fraccion& otra) const {
+        return num * otra.den < den * otra.num;
+    }
+    // Si deseo, puedo no usar 'const' y '\&'
+    // Pero esto sera un poco mas lento ya que crea copias innecesarias
+    // Y al no definir que es un 'const', no da libertad al compilador de
+    // hacer optimizaciones
+    Fraccion operator + (Fraccion otra) {
+        return Fraccion(num * otra.den + den * otra.num, den * otra.den);
+    }
+    // Este operador cambiara el estado de la instancia que la invoque
+    // por ello no podemos usar () const \{
+    void operator *= (const Fraccion& otra){
+        num = num * otra.num;
+        den = den * otra.den;
+    }
+    // Tambien puedo escribir funciones ('metodos') para este 'struct'
+    void imprimir(string sep) {
+        cout << num << '/' << den << sep;
+    }
+}; // NO OLVIDAR PONER ';' al final de un 'struct'
+int n;
+vector <Fraccion> arr;
+// Si no deseo sobreescribir el operador ('<') en mi 'struct', puedo definirlo
+// como una funcion, asi:
+bool cmp(const Fraccion& X, const Fraccion& Y) {
+    return X.num * Y.den < X.den * Y.num;
+}
+int main() {
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        int num, den;
+        cin >> num >> den;
+        arr.push_back(Fraccion(num, den));
+    }
+    sort(arr.begin(), arr.end());
+    //sort(arr.begin(), arr.end(), cmp);
+    cout << "Las fracciones ordenadas" << endl;
+    for (auto fraccion : arr) fraccion.imprimir("  ");
+    cout << endl;
+    Fraccion suma = Fraccion(0, 1);
+    for (auto fraccion : arr) {
+        suma = suma + fraccion;
+        // Si quisiera usar suma += fraccion
+        // Tendria que definir el operador '+='
+    }
+    cout << "La suma de las fracciones es" << endl;
+    suma.imprimir("\n");
+    Fraccion producto = Fraccion(1, 1);
+    for (auto fraccion : arr) producto *= fraccion;
+    cout << "El producto de las fracciones es" << endl;
+    producto.imprimir("\n");
+
+    return (0);
+}
+//Codigo hecho con style=vs
+\end{pyglist}
+Te podría interesar investigar sobre: \texttt{stable\_sort}
+\section{Investigación}
+\subsection*{\texttt{next\_permutation}}
+Se utiliza para reorganizar los elementos en el rango \texttt{[first, last)} en la siguiente permutación lexicográficamente mayor. La función es del tipo \texttt{bool}, por lo que solo devuelve \texttt{true} o \texttt{false}.
+\begin{pyglist}[language=c++,caption={next\_permutation},listingname={\textbf{Ejemplo}},style=autumn]
+#include <algorithm>  
+
+#include <iostream> 
+
+using namespace std; 
+
+int main() { 
+    int arr[] = { 1, 2, 3 }; 
+    sort(arr, arr + 3); 
+  
+    cout << "The 3! possible permutations with 3 elements:\n"; 
+    do { 
+        cout << arr[0] << " " << arr[1] << " " << arr[2] << "\n"; 
+    } while (next_permutation(arr, arr + 3)); 
+
+    cout << "After loop: " << arr[0] << ' ' 
+         << arr[1] << ' ' << arr[2] << '\n'; 
+
+    return 0; 
+} 
+//Salida:
+//The 3! possible permutations with 3 elements:
+//1 2 3
+//1 3 2
+//2 1 3
+//2 3 1
+//3 1 2
+//3 2 1
+//After loop: 1 2 3
+
+//Codigo hecho con style=autumn
+\end{pyglist}
+\newpage
+\subsection*{\texttt{prev\_permutation}}
+De la misma forma que \texttt{next\_permutation} solo que devuelve una permutación anterior.
+\begin{pyglist}[language=c++,caption={prev\_permutation},listingname={\textbf{Ejemplo}},style=abap]
+#include <algorithm>  
+
+#include <iostream> 
+
+using namespace std; 
+
+int main() { 
+    int arr[] = { 1, 2, 3 }; 
+    sort(arr, arr + 3); 
+    reverse(arr, arr + 3); 
+ 
+    cout << "The 3! possible permutations with 3 elements:\n"; 
+    do { 
+        cout << arr[0] << " " << arr[1] << " " << arr[2] << "\n"; 
+    } while (prev_permutation(arr, arr + 3)); 
+
+    cout << "After loop: " << arr[0] << ' ' << arr[1]  
+         << ' ' << arr[2] << '\n'; 
+
+    return 0; 
+} 
+//Salida:
+//The 3! possible permutations with 3 elements:
+//3 2 1
+//3 1 2
+//2 3 1
+//2 1 3
+//1 3 2
+//1 2 3
+//After loop: 3 2 1
+
+//Codigo hecho con style=abap
+\end{pyglist}
+\newpage
+\subsection*{\texttt{iota}}
+Asigna a cada elemento en el rango \texttt{[first,last)} valores sucesivos de \texttt{val}, como si se tratará de \texttt{val++}.
+\begin{pyglist}[language=c++,caption={iota},listingname={\textbf{Ejemplo}},style=rrt]
+#include <iostream> 
+#include <numeric>
+using namespace std;  
+  
+int main() { 
+    int numbers[10]; 
+    // Initailising starting value as 100 
+    int st = 100; 
+  
+    iota(numbers, numbers + 10, st); 
+  
+    cout << "Elements are :"; 
+    for (auto i : numbers) 
+        cout << ' ' << i; 
+    cout << '\n'; 
+  
+    return 0; 
+} 
+//Salida:
+//Elements are : 10 11 12 13 14 15 16 17 18 19 20
+
+//Codigo hecho con style=rrt
+\end{pyglist}
+\newpage
+\subsection*{\texttt{bitset}}
+Un \texttt{bitset} es un \texttt{array of bool}, pero cada valor booleano no se almacena por separado, en lugar de eso, \texttt{bitset} optimiza el espacio de tal manera que cada booleano toma 1 espacio de bits, por lo que el espacio que toma el \texttt{bitset} es menor de lo que tomaría un \texttt{array}. Podemos acceder a cada bit del \texttt{bitset} con la ayuda del operador de indexación de un \texttt{array,'[]'}, entonces \texttt{array[3]} muestra el bit en el índice 3 del \texttt{bitset}, recordando que se lee de derecha a izquierda y comienza en 0.
+\begin{pyglist}[language=c++,caption={bitset},listingname={\textbf{Ejemplo}},style=perldoc]
+#include <bits/stdc++.h> 
+using namespace std; 
+#define M 32 
+int main() { 
+    bitset<M> bset1;     // Constructor por default, establece todos los bits en 0 
+    bitset<M> bset2(20); // bset2 es inicializado con los bits de 20 
+    bitset<M> bset3(string("1100"));// bset3 es inicializado con los bits del string 
+    cout << bset1 << endl; // 00000000000000000000000000000000 
+    cout << bset2 << endl; // 00000000000000000000000000010100 
+    cout << bset3 << endl; // 00000000000000000000000000001100 
+    // declarando set8 con capacidad de 8 bits 
+    bitset<8> set8; // 00000000 
+    set8[1] = 1; // 00000010 
+    set8[4] = set8[1]; // 00010010  
+    int numberof1 = set8.count(); // count retorna el numero de 1's en el bitset 
+
+    // size function retorna el numero total de bits en el bitset. 
+    int numberof0 = set8.size() - numberof1; 
+    cout << set8 << " has " << numberof1 << " ones and "
+         << numberof0 << " zeros\n"; 
+
+    // test function retorna 1 si el bit esta establecido, sino 0 
+    cout << "bool representation of " << set8 << " : "; 
+    
+    for (int i = 0; i < set8.size(); i++) cout << set8.test(i) << " "; 
+    // any function retorna true, si al menos 1 bit esta establecido.
+    if (!set8.any()) cout << "set8 has no bit set.\n"; 
+    // none function retorna true, si no hay ningun bit establecido. 
+    if (!bset1.none()) cout << "bset1 has some bit set\n"; 
+    
+    cout << set8.set() << endl; //1 en todos los bits
+    cout << set8.set(4, 0) << endl; //0 en el indice 4
+    cout << set8.set(4) << endl; //1 en el indice 4
+    cout << set8.reset(2) << endl; //0 en el indice 2 
+    cout << set8.reset() << endl;  //0 en todo los bits
+    cout << set8.flip(2) << endl; //flip en el indice 2
+    cout << set8.flip() << endl; //flip en todos los bits
+    // Converting decimal number to binary by using bitset 
+    int num = 100; 
+    cout << "\nDecimal number: " << num 
+         << "  Binary equivalent: " << bitset<8>(num);
+    return 0; 
+} 
+//Codigo hecho con style=perldoc
+\end{pyglist}
+\subsection*{\_\_builtin}
+\subsubsection*{\texttt{\_\_builtin\_popcount}}
+Esta función es usada para contar el número de 1's de un número:
+\begin{pyglist}[language=c++,caption={popcount},listingname={\textbf{Ejemplo}},style=arduino]
+#include <stdio.h> 
+int main() { 
+    int n = 5; 
+    printf("Count of 1s in binary of %d is %d ",n, __builtin_popcount(n)); 
+    //Count of 1s in binary of 5 is 2
+}
+//Codigo hecho con style=arduino
+\end{pyglist}
+\subsubsection*{\texttt{\_\_builtin\_parity}}
+\begin{pyglist}[language=c++,caption={popcount},listingname={\textbf{Ejemplo}},style=tango]
+#include <stdio.h> 
+int main() { 
+    int n = 7; 
+    printf("Parity of %d is %d ",n, __builtin_parity(n)); 
+    //Parity of 7 is 1
+}
+//Codigo hecho con style=tango 
+\end{pyglist}
+\subsubsection*{\texttt{\_\_builtin\_clz}}
+Cuenta el número de 0's después del primer 1.
+\begin{pyglist}[language=c++,caption={popcount},listingname={\textbf{Ejemplo}},style=emacs]
+int main() { 
+    int n = 16; 
+    printf("Count of leading zeros before 1 in %d is %d",n, __builtin_clz(n));  
+    //Count of leading zeros before 1 in 16 is 27
+}
+//Codigo hecho con style=emacs
+\end{pyglist}
+\subsubsection*{\texttt{\_\_builtin\_ctz}}
+Cuenta el número de 0's hasta el primer 1.
+\begin{pyglist}[language=c++,caption={popcount},listingname={\textbf{Ejemplo}},style=friendly]
+int main() { 
+    int n = 16; 
+    printf("Count zeros from last to first occurrence of one is %d",builtin_ctz(n));
+    //Count zeros from last to first occurrence of one is 4
+} 
+//Codigo hecho con style=friendly
+\end{pyglist}
+\subsection*{\texttt{stable\_sort}}
+Funciona igual que \texttt{sort}, solo que si encontrase elementos iguales al comparar; los muestra manteniendo el orden.
+\begin{pyglist}[language=c++,caption={bitset},listingname={\textbf{Ejemplo}},style=borland]
+#include <iostream>
+#include <algorithm>
+#include <vector>
+using namespace std;
+bool compare_as_ints (double i,double j){
+  return (int(i)<int(j));
+}
+
+int main () {
+  double mydoubles[] = {3.14, 1.41, 2.72, 4.67, 1.73, 1.32, 1.62, 2.58};
+  vector<double> myvector;
+  myvector.assign(mydoubles,mydoubles+8);
+  cout << "using default comparison:";
+  stable_sort (myvector.begin(), myvector.end());
+  for (vector<double>::iterator it=myvector.begin(); it!=myvector.end(); ++it)
+    cout << ' ' << *it;
+  cout << '\n';
+  myvector.assign(mydoubles,mydoubles+8);
+  cout << "using 'compare_as_ints' :";
+  stable_sort (myvector.begin(), myvector.end(), compare_as_ints);
+  for (vector<double>::iterator it=myvector.begin(); it!=myvector.end(); ++it)
+    cout << ' ' << *it;
+  cout << '\n';
+  return 0;
+}
+//Salida
+//using default comparison: 1.32 1.41 1.62 1.73 2.58 2.72 3.14 4.67
+//using compare\_as\_ints: 1.41 1.73 1.32 1.62 2.72 2.58 3.14 4.67
+
+//Codigo hecho con style=borland
+\end{pyglist}
+\end{document}
