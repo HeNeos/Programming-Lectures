@@ -1,0 +1,32 @@
+\begin{Verbatim}[commandchars=\\\{\},codes={\catcode`\$=3\catcode`\^=7\catcode`\_=8}]
+\PY{c+cp}{\PYZsh{}include} \PY{c+cpf}{\PYZlt{}iostream>}
+\PY{c+cp}{#include} \PY{c+cpf}{\PYZlt{}algorithm>}
+\PY{c+cp}{#include} \PY{c+cpf}{\PYZlt{}vector>}
+\PY{k}{using} \PY{k}{namespace} \PY{n}{std}\PY{p}{;}
+\PY{k+kt}{bool} \PY{n+nf}{compare\PYZus{}as\PYZus{}ints} \PY{p}{(}\PY{k+kt}{double} \PY{n}{i}\PY{p}{,}\PY{k+kt}{double} \PY{n}{j}\PY{p}{)\PYZob{}}
+  \PY{k}{return} \PY{p}{(}\PY{k+kt}{int}\PY{p}{(}\PY{n}{i}\PY{p}{)}\PY{o}{\PYZlt{}}\PY{k+kt}{int}\PY{p}{(}\PY{n}{j}\PY{p}{));}
+\PY{p}{\PYZcb{}}
+
+\PY{k+kt}{int} \PY{n+nf}{main} \PY{p}{()} \PY{p}{\PYZob{}}
+  \PY{k+kt}{double} \PY{n}{mydoubles}\PY{p}{[]} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+m+mf}{3.14}\PY{p}{,} \PY{l+m+mf}{1.41}\PY{p}{,} \PY{l+m+mf}{2.72}\PY{p}{,} \PY{l+m+mf}{4.67}\PY{p}{,} \PY{l+m+mf}{1.73}\PY{p}{,} \PY{l+m+mf}{1.32}\PY{p}{,} \PY{l+m+mf}{1.62}\PY{p}{,} \PY{l+m+mf}{2.58}\PY{p}{\PYZcb{};}
+  \PY{n}{vector}\PY{o}{\PYZlt{}}\PY{k+kt}{double}\PY{o}{\PYZgt{}} \PY{n}{myvector}\PY{p}{;}
+  \PY{n}{myvector}\PY{p}{.}\PY{n}{assign}\PY{p}{(}\PY{n}{mydoubles}\PY{p}{,}\PY{n}{mydoubles}\PY{o}{+}\PY{l+m+mi}{8}\PY{p}{);}
+  \PY{n}{cout} \PY{o}{\PYZlt{}\PYZlt{}} \PY{l+s}{\PYZdq{}using default comparison:\PYZdq{}}\PY{p}{;}
+  \PY{n}{stable\PYZus{}sort} \PY{p}{(}\PY{n}{myvector}\PY{p}{.}\PY{n}{begin}\PY{p}{(),} \PY{n}{myvector}\PY{p}{.}\PY{n}{end}\PY{p}{());}
+  \PY{k}{for} \PY{p}{(}\PY{n}{vector}\PY{o}{\PYZlt{}}\PY{k+kt}{double}\PY{o}{\PYZgt{}::}\PY{n}{iterator} \PY{n}{it}\PY{o}{=}\PY{n}{myvector}\PY{p}{.}\PY{n}{begin}\PY{p}{();} \PY{n}{it}\PY{o}{!=}\PY{n}{myvector}\PY{p}{.}\PY{n}{end}\PY{p}{();} \PY{o}{++}\PY{n}{it}\PY{p}{)}
+    \PY{n}{cout} \PY{o}{\PYZlt{}\PYZlt{}} \PY{l+s+sc}{\PYZsq{} \PYZsq{}} \PY{o}{\PYZlt{}\PYZlt{}} \PY{o}{*}\PY{n}{it}\PY{p}{;}
+  \PY{n}{cout} \PY{o}{\PYZlt{}\PYZlt{}} \PY{l+s+sc}{\PYZsq{}\PYZbs{}n\PYZsq{}}\PY{p}{;}
+  \PY{n}{myvector}\PY{p}{.}\PY{n}{assign}\PY{p}{(}\PY{n}{mydoubles}\PY{p}{,}\PY{n}{mydoubles}\PY{o}{+}\PY{l+m+mi}{8}\PY{p}{);}
+  \PY{n}{cout} \PY{o}{\PYZlt{}\PYZlt{}} \PY{l+s}{\PYZdq{}using \PYZsq{}compare\PYZus{}as\PYZus{}ints\PYZsq{} :\PYZdq{}}\PY{p}{;}
+  \PY{n}{stable\PYZus{}sort} \PY{p}{(}\PY{n}{myvector}\PY{p}{.}\PY{n}{begin}\PY{p}{(),} \PY{n}{myvector}\PY{p}{.}\PY{n}{end}\PY{p}{(),} \PY{n}{compare\PYZus{}as\PYZus{}ints}\PY{p}{);}
+  \PY{k}{for} \PY{p}{(}\PY{n}{vector}\PY{o}{\PYZlt{}}\PY{k+kt}{double}\PY{o}{\PYZgt{}::}\PY{n}{iterator} \PY{n}{it}\PY{o}{=}\PY{n}{myvector}\PY{p}{.}\PY{n}{begin}\PY{p}{();} \PY{n}{it}\PY{o}{!=}\PY{n}{myvector}\PY{p}{.}\PY{n}{end}\PY{p}{();} \PY{o}{++}\PY{n}{it}\PY{p}{)}
+    \PY{n}{cout} \PY{o}{\PYZlt{}\PYZlt{}} \PY{l+s+sc}{\PYZsq{} \PYZsq{}} \PY{o}{\PYZlt{}\PYZlt{}} \PY{o}{*}\PY{n}{it}\PY{p}{;}
+  \PY{n}{cout} \PY{o}{\PYZlt{}\PYZlt{}} \PY{l+s+sc}{\PYZsq{}\PYZbs{}n\PYZsq{}}\PY{p}{;}
+  \PY{k}{return} \PY{l+m+mi}{0}\PY{p}{;}
+\PY{p}{\PYZcb{}}
+\PY{c+c1}{//Salida}
+\PY{c+c1}{//using default comparison: 1.32 1.41 1.62 1.73 2.58 2.72 3.14 4.67}
+\PY{c+c1}{//using compare\_as\_ints: 1.41 1.73 1.32 1.62 2.72 2.58 3.14 4.67}
+
+\PY{c+c1}{//Codigo hecho con style=borland}
+\end{Verbatim}
